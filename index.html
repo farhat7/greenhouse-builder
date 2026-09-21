@@ -3354,15 +3354,16 @@ Promise.all([loadSU().catch(e=>console.warn('self-use tables',e)),loadPlantingMo
   const body=document.body,tourButton=document.getElementById('btnDemo'),closeButton=document.getElementById('demoClose'),hud=document.getElementById('publicDisplayHud'),qr=document.getElementById('displayQrImage'),qrLink=document.getElementById('displayQrLink'),qrLabel=document.getElementById('displayQrLabel'),qrUrl=document.getElementById('displayQrUrl');
   const qrTarget=()=>{
     const configured=window.GREENHOUSE_PUBLIC_URL||(document.querySelector('meta[name="greenhouse-public-url"]')||{}).content;
-    return (configured||window.location.href).split('#')[0];
+    const current=(configured||window.location.href).split('#')[0];
+    return /^https?:\/\//i.test(current)?new URL('qr.html',current.endsWith('/')?current:current+'/').href:current;
   };
   const updateQR=()=>{
     if(!qr)return;
-    const target=qrTarget(),hosted=/^https?:\/\//i.test(target);
+    const target=qrTarget(),hosted=/^https?:\/\//i.test(target),builderUrl=hosted?new URL('./',target).href:target;
     qr.src='https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=8&data='+encodeURIComponent(target);
     if(qrLink)qrLink.href=target;
-    if(qrLabel)qrLabel.textContent=hosted?'Scan the code, tap Open, then share or save the page link.':'Preview only. Host this page before sharing the QR code.';
-    if(qrUrl)qrUrl.textContent=hosted?target.replace(/^https?:\/\//i,''):'Hosted HTTPS URL required';
+    if(qrLabel)qrLabel.textContent=hosted?'Scan to choose Open, Copy, or Share.':'Preview only. Host this page before sharing the QR code.';
+    if(qrUrl)qrUrl.textContent=hosted?builderUrl.replace(/^https?:\/\//i,''):'Hosted HTTPS URL required';
     qr.onerror=()=>{qr.alt='QR code unavailable';if(qrLabel)qrLabel.textContent='QR image unavailable. Check the display network.';};
   };
   const setDisplay=on=>{
