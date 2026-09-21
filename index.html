@@ -292,12 +292,12 @@ footer{padding:0 20px 30px;color:var(--ink3);font-size:11.5px;max-width:1500px;m
     <h1>Climate, crop, energy, and cost decisions</h1>
     <p>Explore a representative greenhouse design case through cooling, solar power, resource use, and lifecycle economics.</p>
   </div>
-  <div class="display-qr" role="group" aria-label="Open the full builder">
+  <div class="display-qr" role="group" aria-label="Access the platform">
     <a id="displayQrLink" class="display-qr-link" href="#" target="_blank" rel="noopener"><img id="displayQrImage" width="82" height="82" alt="QR code for the Greenhouse Builder"></a>
     <div>
       <div class="display-qr-kicker">Continue on your device</div>
-      <strong>Open and save the builder</strong>
-      <span id="displayQrLabel">Scan the code, then share or save the page link.</span>
+      <strong>Access the platform</strong>
+      <span id="displayQrLabel">Use the code to continue on another device.</span>
       <small id="displayQrUrl" class="display-qr-url">Hosted URL required</small>
     </div>
   </div>
@@ -3377,9 +3377,9 @@ Promise.all([loadSU().catch(e=>console.warn('self-use tables',e)),loadPlantingMo
     const target=qrTarget(),hosted=/^https?:\/\//i.test(target),builderUrl=hosted?new URL('./',target).href:target;
     qr.src='https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=8&data='+encodeURIComponent(target);
     if(qrLink)qrLink.href=target;
-    if(qrLabel)qrLabel.textContent=hosted?'Scan to choose Open, Copy, or Share.':'Preview only. Host this page before sharing the QR code.';
+    if(qrLabel)qrLabel.textContent=hosted?'Use the code to continue on another device.':'Hosted access required.';
     if(qrUrl)qrUrl.textContent=hosted?builderUrl.replace(/^https?:\/\//i,''):'Hosted HTTPS URL required';
-    qr.onerror=()=>{qr.alt='QR code unavailable';if(qrLabel)qrLabel.textContent='QR image unavailable. Check the display network.';};
+    qr.onerror=()=>{qr.alt='QR code unavailable';if(qrLabel)qrLabel.textContent='Access link unavailable. Check the display network.';};
   };
   const setDisplay=on=>{
     body.classList.toggle('display-mode',!!on);
