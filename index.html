@@ -3011,6 +3011,13 @@ const GH3D=(()=>{
   function fit(v){view=v||view;const d=dims,R=Math.max(d.W,d.L)+12,rot=p=>p.applyAxisAngle(new THREE.Vector3(0,1,0),house.rotation.y),c=rot(new THREE.Vector3(d.W/2-4,2,-d.L/2));
     const V={over:[c.x+R*.72,R*.48,c.z+R*.82],roof:[c.x+R*.12,R*1.25,c.z+R*.28],section:[c.x+R*.6,R*.38,c.z+R*.72]};
     if(view==='inside'){const p=rot(new THREE.Vector3(d.xc,1.85,-3.0)),t=rot(new THREE.Vector3(d.xc,1.55,-d.L*.75));fly={p0:camera.position.clone(),t0:controls.target.clone(),p1:p,t1:t,s:performance.now()};}
+    else if(view==='cooling'){
+      const cooler=cfg&&cfg.cooler,hybrid=cooler==='hybrid',mechanical=cooler==='mech';
+      const span=Math.max(8,Math.min(18,d.W*.75));
+      const targetLocal=hybrid?new THREE.Vector3(d.W+2.4,1.35,-d.L*.5):new THREE.Vector3(d.W/2,mechanical?1.35:1.75,-(d.L+(mechanical?2.35:.55)));
+      const cameraLocal=hybrid?new THREE.Vector3(d.W+span,Math.max(4.5,d.hg+2.1),-d.L*.5-span*.55):new THREE.Vector3(d.W/2+span,Math.max(4.5,d.hg+2.1),targetLocal.z-span*.8);
+      const p=rot(cameraLocal),t=rot(targetLocal);fly={p0:camera.position.clone(),t0:controls.target.clone(),p1:p,t1:t,s:performance.now()};
+    }
     else{const q=V[view]||V.over;fly={p0:camera.position.clone(),t0:controls.target.clone(),p1:new THREE.Vector3(q[0],q[1],q[2]),t1:c,s:performance.now()};}
     covers.forEach(m=>{m.material=view==='section'?MAT.faint:coverMat(cfg.cover);});screens.forEach(s=>{s.visible=s.userData.dep&&view!=='section';});}
   /* ---------- picking ---------- */
@@ -3130,9 +3137,9 @@ const GH3D=(()=>{
   };
   const demoSteps=[
     {tab:'p-year',view:'over',title:'Establish the baseline design',text:'Define the crop, structure, site, cover, and cooling system. The model updates annual yield, water use, electricity demand, and cost.',apply:()=>{demoDefaults();S.cool='natvent';S.cover='pe';S.pv='none';}},
-    {tab:'p-house',view:'inside',title:'Evaluate evaporative cooling',text:'Assess a wet-pad and fan system. The resource ledger separates pad water, fan electricity, and crop water demand.',apply:()=>{demoDefaults();S.cool='evap';S.cover='pe';S.pv='none';}},
-    {tab:'p-house',view:'section',title:'Evaluate hybrid cooling',text:'Assess daytime evaporative cooling with nighttime mechanical backup. Compare the result against the crop temperature targets.',apply:()=>{demoDefaults();S.cool='hybrid';S.cover='pc';S.pv='none';}},
-    {tab:'p-house',view:'inside',title:'Evaluate mechanical cooling',text:'Assess a closed house with mechanical cooling and a glass cover. The model shows the effect of tighter temperature and humidity control.',apply:()=>{demoDefaults();S.cool='hvac';S.cover='glass';S.pv='none';}},
+    {tab:'p-house',view:'cooling',title:'Evaluate evaporative cooling',text:'Review the wet-pad and exhaust-fan assembly from the equipment side. The resource ledger separates pad water, fan electricity, and crop water demand.',apply:()=>{demoDefaults();S.cool='evap';S.cover='pe';S.pv='none';}},
+    {tab:'p-house',view:'cooling',title:'Evaluate hybrid cooling',text:'Review the external backup air-conditioning units that support daytime evaporative cooling. The model compares the combined system with the crop temperature targets.',apply:()=>{demoDefaults();S.cool='hybrid';S.cover='pc';S.pv='none';}},
+    {tab:'p-house',view:'cooling',title:'Evaluate mechanical cooling',text:'Review the packaged mechanical cooling units and their rear fans outside the closed house. The model shows the effect of controlled temperature and humidity.',apply:()=>{demoDefaults();S.cool='hvac';S.cover='glass';S.pv='none';}},
     {tab:'p-year',view:'roof',title:'Assess opaque roof PV',text:'Add opaque PV strips to the sun-facing roof slope. The model quantifies solar generation and the associated reduction in crop light.',apply:()=>{demoDefaults();S.cool='evap';S.cover='pe';S.pv='roof';S.pvCover=30;}},
     {tab:'p-year',view:'roof',title:'Assess semi-transparent roof PV',text:'Use semi-transparent roof strips. The model shows the trade-off between solar generation, transmitted light, and crop yield.',apply:()=>{demoDefaults();S.cool='evap';S.cover='pc';S.pv='semi';S.pvCover=30;}},
     {tab:'p-house',view:'roof',title:'Establish a ground-mounted PV case',text:'Place a 30% ground-mounted array beside the greenhouse. It supplies electricity without shading the crop and requires additional land.',apply:()=>{demoDefaults();S.cool='evap';S.cover='pc';S.pv='ground';S.pvCover=30;}},
