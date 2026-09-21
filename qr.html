@@ -28,27 +28,27 @@
     <div class="mark" aria-hidden="true">G</div>
     <p class="eyebrow">Public link · No account required</p>
     <h1>Greenhouse Builder</h1>
-    <p class="lead">Choose how you want to continue. You can open the builder now or save its link for later.</p>
-    <a id="openBuilder" class="primary" href="./">Open the builder</a>
+    <p class="lead">Access the platform or transfer the link to another device.</p>
+    <a id="openBuilder" class="primary" href="./">Access the platform</a>
     <div class="actions">
-      <button id="copyLink" type="button">Copy link</button>
-      <button id="shareLink" type="button">Share link</button>
+      <button id="copyLink" type="button">Copy access link</button>
+      <button id="shareLink" type="button">Share access link</button>
     </div>
     <div id="linkText" class="linkbox" aria-label="Builder link"></div>
-    <p id="status" role="status">Copy the link to send it to your laptop or save it as a bookmark.</p>
-    <p class="note">The page is hosted on GitHub Pages. A GitHub account is not needed to open it.</p>
+    <p id="status" role="status">Use the link above to continue on another device or retain it for future access.</p>
+    <p class="note">No account is required. The platform is available through a secure HTTPS connection.</p>
   </main>
   <script>
     (()=>{
       const builderUrl=new URL('./',window.location.href).href,openBuilder=document.getElementById('openBuilder'),linkText=document.getElementById('linkText'),status=document.getElementById('status'),copyButton=document.getElementById('copyLink'),shareButton=document.getElementById('shareLink');
       openBuilder.href=builderUrl;linkText.textContent=builderUrl;
       const copyLink=async()=>{
-        try{await navigator.clipboard.writeText(builderUrl);status.textContent='Link copied. Send it to your laptop or save it as a bookmark.';}
-        catch(e){const area=document.createElement('textarea');area.value=builderUrl;area.style.position='fixed';area.style.opacity='0';document.body.appendChild(area);area.select();const ok=document.execCommand('copy');area.remove();status.textContent=ok?'Link copied. Send it to your laptop or save it as a bookmark.':'Select the link above and copy it.';}
+        try{await navigator.clipboard.writeText(builderUrl);status.textContent='Access link copied. Use it on another device or retain it for future access.';}
+        catch(e){const area=document.createElement('textarea');area.value=builderUrl;area.style.position='fixed';area.style.opacity='0';document.body.appendChild(area);area.select();const ok=document.execCommand('copy');area.remove();status.textContent=ok?'Access link copied. Use it on another device or retain it for future access.':'Select the access link above and copy it.';}
       };
       copyButton.onclick=copyLink;
       shareButton.onclick=async()=>{
-        if(navigator.share){try{await navigator.share({title:'Greenhouse Builder',text:'Open the Greenhouse Builder',url:builderUrl});}catch(e){if(e.name!=='AbortError')copyLink();}}
+        if(navigator.share){try{await navigator.share({title:'Greenhouse Builder',text:'Access the Greenhouse Builder platform',url:builderUrl});}catch(e){if(e.name!=='AbortError')copyLink();}}
         else copyLink();
       };
     })();
