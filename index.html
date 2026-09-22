@@ -298,7 +298,6 @@ footer{padding:0 20px 30px;color:var(--ink3);font-size:11.5px;max-width:1500px;m
       <div class="display-qr-kicker">Continue on your device</div>
       <strong>Access the platform</strong>
       <span id="displayQrLabel">Use the code to continue on another device.</span>
-      <small id="displayQrUrl" class="display-qr-url">Hosted URL required</small>
     </div>
   </div>
 </div>
@@ -3370,7 +3369,7 @@ Promise.all([loadSU().catch(e=>console.warn('self-use tables',e)),loadPlantingMo
 </script>
 <script>
 (()=>{
-  const body=document.body,tourButton=document.getElementById('btnDemo'),closeButton=document.getElementById('demoClose'),hud=document.getElementById('publicDisplayHud'),qr=document.getElementById('displayQrImage'),qrLink=document.getElementById('displayQrLink'),qrLabel=document.getElementById('displayQrLabel'),qrUrl=document.getElementById('displayQrUrl');
+  const body=document.body,tourButton=document.getElementById('btnDemo'),closeButton=document.getElementById('demoClose'),hud=document.getElementById('publicDisplayHud'),qr=document.getElementById('displayQrImage'),qrLink=document.getElementById('displayQrLink'),qrLabel=document.getElementById('displayQrLabel');
   const qrTarget=()=>{
     const configured=window.GREENHOUSE_PUBLIC_URL||(document.querySelector('meta[name="greenhouse-public-url"]')||{}).content;
     const current=(configured||window.location.href).split('#')[0];
@@ -3382,7 +3381,6 @@ Promise.all([loadSU().catch(e=>console.warn('self-use tables',e)),loadPlantingMo
     qr.src='https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=8&data='+encodeURIComponent(target);
     if(qrLink)qrLink.href=target;
     if(qrLabel)qrLabel.textContent=hosted?'Use the code to continue on another device.':'Hosted access required.';
-    if(qrUrl)qrUrl.textContent=hosted?builderUrl.replace(/^https?:\/\//i,''):'Hosted HTTPS URL required';
     qr.onerror=()=>{qr.alt='QR code unavailable';if(qrLabel)qrLabel.textContent='Access link unavailable. Check the display network.';};
   };
   const setDisplay=on=>{
