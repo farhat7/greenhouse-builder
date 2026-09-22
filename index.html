@@ -294,15 +294,19 @@ footer{padding:0 20px 30px;color:var(--ink3);font-size:11.5px;max-width:1500px;m
   </div>
   <div class="display-qr" role="group" aria-label="Access the platform">
     <a id="displayQrLink" class="display-qr-link" href="#" target="_blank" rel="noopener"><img id="displayQrImage" width="82" height="82" alt="QR code for the Greenhouse Builder"></a>
-    <strong>Access the platform</strong>
+    <div class="display-qr-copy">
+      <strong>Access the Platform</strong>
+      <span>Try the GH Builder</span>
+    </div>
   </div>
 </div>
 
 <style>
-  .display-mode .display-qr{width:260px;padding:12px 14px;gap:12px}
+  .display-mode .display-qr{width:280px;padding:12px 14px;gap:12px}
   .display-mode .display-qr img{width:82px;height:82px}
+  .display-mode .display-qr-copy{min-width:0;flex:1 1 auto}
   .display-mode .display-qr strong{font-size:15px;line-height:1.2}
-  @media(max-width:1050px){.display-mode .display-qr{width:238px}}
+  @media(max-width:1050px){.display-mode .display-qr{width:258px}}
 </style>
 
 <div class="wrap">
