@@ -1655,7 +1655,7 @@ const I18N={en:{
  briefTitle:'One-page design brief',briefStrip:'Production by month',briefPrinted:'Printed',
  lblWyear:'Weather year',lblScreen:'Shade screen',lblCo2:'CO2 enrichment',lblPlantMonth:'Planting month',
  optNone:'None',optOff:'Off',optOn:'On',optRegistryDefault:'Registry default',
- optWyearTypical:'Typical (TMYx 2009–2023)',optWyearHeatshock:'Heat-shock year',
+ optWyearTypical:'Typical (TMYx 2009–2023)',
  lblCoverWash:'Cover washing, every N days (0 = off)',
   tabPlan:'Planning',h4Harvest:'Harvest calendar',h4Supply:'Staggered planting: quarter-balance test',h4Resil:'Resilience across weather years',
  h4OwnFarm:"Compare your own farm"
@@ -2276,11 +2276,11 @@ function proposeStagger(N,yieldByMonth){
   }
   return {months,quarterly:q};
 }
-/* Resilience: the 13 Doha weather scenarios (models/v6/build_scenarios.py), read against THIS design's own
+/* Resilience: the 12 Doha future-climate scenarios (models/v6/build_scenarios.py), read against THIS design's own
    crop/cooling/cover archetype at X = 0, no screen, no CO2 and no PV/cover dust -- the states the scenario pack
    supports today. scenarioResultFor() is the one function to change when a second data pass adds scenario runs
    with shade, PV and CO2 (Planning tab caption says the same). */
-const SCENARIO_KEYS=((D.v6&&D.v6.scenarios&&D.v6.scenarios.scenarios)||[]).filter(k=>k!=='baseline');
+const SCENARIO_KEYS=((D.v6&&D.v6.scenarios&&D.v6.scenarios.scenarios)||[]).filter(k=>k!=='baseline'&&k!=='heatshock');
 function scenarioRawRatio(sk,arch,crop,kind){
   const sc=D.v6&&D.v6.scenarios;if(!sc)return [1,1,1,1];
   const row=sc.ratios[sk]&&sc.ratios[sk][arch]&&sc.ratios[sk][arch][crop]&&sc.ratios[sk][arch][crop][kind];
@@ -2411,7 +2411,7 @@ function buildControls(){
   $('#screens').querySelectorAll('button').forEach(b=>b.onclick=()=>{S.screen=b.dataset.k;render();});
   $('#coverWashDays').value=S.coverWashDays;$('#coverWashDays').oninput=e=>{const v=Math.max(0,Math.min(180,+e.target.value||0));S.coverWashDays=v;render();};
   const wySel=$('#wyear');wySel.innerHTML='';let wyGrp=null;
-  ((D.v6&&D.v6.scenarios&&D.v6.scenarios.scenarios)||['baseline']).forEach(k=>{
+  ((D.v6&&D.v6.scenarios&&D.v6.scenarios.scenarios)||['baseline']).filter(k=>k!=='heatshock').forEach(k=>{
     const isSSP=/^ssp/.test(k);
     if(isSSP&&!wyGrp){wyGrp=document.createElement('optgroup');wyGrp.label='Climate scenarios (SSP, Doha-derived sensitivity)';wySel.appendChild(wyGrp);}
     const o=document.createElement('option');o.value=k;o.textContent=wyearName(k);(isSSP?wyGrp:wySel).appendChild(o);
@@ -2463,7 +2463,7 @@ function syncControls(){
      things still have no scenario data at any X and stay locked, each with its own stated reason: the
      planting month (no scenario rerun exists at any transplant month), and solar power specifically for the
      lettuce/amaranth hybrid-proxy load (no scenario self-use table for that one proxy climate). */
-  if(!WYEAR_SITES.has(S.site))S.wyear='baseline';
+  if(!WYEAR_SITES.has(S.site)||S.wyear==='heatshock')S.wyear='baseline';
   const wyLock=wyearLocksOthers();          // true whenever a non-typical weather year is selected
   const pvBlocked=wyearBlocksPv();          // true only for (weather year != baseline) AND hybrid cooling AND (lettuce or amaranth)
   if(wyLock)S.plantMonth=null;              // no scenario planting-month data exists at any X (unchanged limit, V6_MODELS.md Task 7 gap 3)
@@ -2482,9 +2482,9 @@ function syncControls(){
   $('#plantMonth').disabled=wyLock||!pmElig;
   const pmOpt0=$('#plantMonth').querySelector('option[value="0"]');if(pmOpt0)pmOpt0.textContent=regC?t('optRegistryDefault')+' ('+MON[regC.transplant_month-1]+')':t('optRegistryDefault');
   $('#plantMonth').value=S.plantMonth?String(S.plantMonth):'0';
-  $('#plantMonthLock').textContent=wyLock?'Held at the usual month while a hot or future weather year is selected: no scenario planting-month data exists at any roof-shade level.':(pmElig?'':'This crop runs all year under this cooling system, so there is no planting month.');
+  $('#plantMonthLock').textContent=wyLock?'Held at the usual month while a future climate scenario is selected: no scenario planting-month data exists at any roof-shade level.':(pmElig?'':'This crop runs all year under this cooling system, so there is no planting month.');
   $('#screenLock').textContent='';
-  $('#wyearLock').textContent=wyAvail?(S.wyear!=='baseline'?(pvBlocked?'The planting month stays at the registry default (no scenario data exists for it). Solar power is off for this crop and cooling system: no scenario self-use table exists for the lettuce/amaranth hybrid-proxy load.':'The planting month stays at the registry default: no scenario data exists for it at any roof-shade level.'):''):'Hot and future years exist for the Doha runs only.';
+  $('#wyearLock').textContent=wyAvail?(S.wyear!=='baseline'?(pvBlocked?'The planting month stays at the registry default (no scenario data exists for it). Solar power is off for this crop and cooling system: no scenario self-use table exists for the lettuce/amaranth hybrid-proxy load.':'The planting month stays at the registry default: no scenario data exists for it at any roof-shade level.'):''):'Future climate scenarios exist for the Doha runs only.';
   $('#plantMonthHint').textContent=wyLock?'Locked to the registry default while a non-typical weather year is selected: no scenario planting-month data exists at any roof-shade level (V6_MODELS.md Task 7, gap 3).':(pmElig?"Sweeps the transplant month at the same cycle length and mode as the registry window (models/v6/V6_MODELS.md Task 2). Changes the active months everywhere this design reads them: resources, self-use and the production strip.":'This crop and cooling system run year-round (HVAC, or the lettuce/amaranth batch rows) — there is no transplant month to move.');
   const co2Avail=co2Available(S.cool,S.crop);$('#co2Ctl').hidden=false;   // always visible, with a one-line reason when it is not available
   $('#co2Lock').textContent=S.cool!=='hvac'?'Only for the closed house (mechanical cooling, DX). An open house loses the gas through the vents.':(co2Available('hvac',S.crop)?'':'No sourced yield ceiling for '+lc(cropName(S.crop))+' under enrichment, so it is not offered.');
@@ -2631,7 +2631,6 @@ const CMP_FIELDS=[
 ];
 function wyearName(k){
   if(k==='baseline')return t('optWyearTypical');
-  if(k==='heatshock')return t('optWyearHeatshock');
   const m=/^ssp(\d)(\d\d)_(\d+)$/.exec(k);
   return m?('SSP'+m[1]+'-'+(+m[2]/10).toFixed(1)+', '+m[3]):k;
 }
