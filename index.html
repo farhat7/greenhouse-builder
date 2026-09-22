@@ -2812,6 +2812,7 @@ const GH3D=(()=>{
   function beam(g,p,q,tw,th,mat){const a=new THREE.Vector3(p[0],p[2],-p[1]),b=new THREE.Vector3(q[0],q[2],-q[1]),L=a.distanceTo(b);if(L<1e-3)return null;const m=new THREE.Mesh(new THREE.BoxGeometry(tw,th,L),mat);m.position.copy(a).add(b).multiplyScalar(.5);m.lookAt(b);stash(m,g);return m;}
   function pipe(g,pts,r,mat,info){for(let i=0;i<pts.length-1;i++){const a=new THREE.Vector3(pts[i][0],pts[i][2],-pts[i][1]),b=new THREE.Vector3(pts[i+1][0],pts[i+1][2],-pts[i+1][1]),L=a.distanceTo(b);if(L<1e-3)continue;const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,L,10),mat);m.position.copy(a).add(b).multiplyScalar(.5);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),b.clone().sub(a).normalize());m.castShadow=true;if(info){g.add(m);m.userData.info=info;pick.push(m);}else stash(m,g);if(i<pts.length-2){const j=new THREE.Mesh(new THREE.SphereGeometry(r*1.15,8,6),mat);j.position.copy(b);stash(j,g);}}}
   function tube(g,pts,r,mat){const c=new THREE.CatmullRomCurve3(pts.map(p=>new THREE.Vector3(p[0],p[2],-p[1])),false,'centripetal');const m=new THREE.Mesh(new THREE.TubeGeometry(c,Math.max(8,pts.length*2),r,5,false),mat);stash(m,g);return m;}
+  function supplyDuct(g,pts,r,mat){const c=new THREE.CatmullRomCurve3(pts.map(p=>new THREE.Vector3(p[0],p[2],-p[1])),false,'centripetal');const m=new THREE.Mesh(new THREE.TubeGeometry(c,18,r,12,false),mat);m.castShadow=true;m.receiveShadow=true;stash(m,g);return m;}
   function fanUnit(g,x,y,z,r,axis,mat){const f=new THREE.Group();f.position.set(x,z,-y);const ring=new THREE.Mesh(new THREE.TorusGeometry(r*.7,r*.085,8,24),MAT.dark);ring.material.side=THREE.DoubleSide;if(axis==='y')ring.rotation.x=Math.PI/2;else if(axis==='x')ring.rotation.y=Math.PI/2;f.add(ring);mat.side=THREE.DoubleSide;const nb=axis==='z'?6:4;for(let b=0;b<nb;b++){const bl=new THREE.Mesh(axis==='z'?new THREE.BoxGeometry(r*.78,r*.1,.035):axis==='x'?new THREE.BoxGeometry(.035,r*.78,r*.1):new THREE.BoxGeometry(r*.78,.035,r*.1),mat);if(axis==='x')bl.position.y=r*.34;else bl.position.x=r*.34;const h=new THREE.Group();h.add(bl);if(axis==='z')h.rotation.z=b*2*Math.PI/nb;else if(axis==='x')h.rotation.x=b*2*Math.PI/nb;else h.rotation.y=b*2*Math.PI/nb;f.add(h);}const hub=new THREE.Mesh(new THREE.SphereGeometry(r*.14,8,6),mat);f.add(hub);f.userData.axis=axis;g.add(f);fans.push(f);return f;}
   function label(g,text,x,y,z,h){h=Math.max(h,(dims?Math.max(dims.W,dims.L):40)*.028);const c=document.createElement('canvas'),k=c.getContext('2d'),f='600 40px Barlow Condensed, Arial Narrow, Arial';k.font=f;const w=Math.ceil(k.measureText(text).width)+26;c.width=w;c.height=56;k.font=f;k.fillStyle='rgba(19,24,26,.86)';k.fillRect(0,0,w,56);k.fillStyle='#fff';k.textBaseline='middle';k.fillText(text,13,29);const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,depthTest:false,transparent:true}));s.scale.set(h*w/56,h,1);s.position.set(x,z,-y);s.renderOrder=9;g.add(s);return s;}
   const info=(n,l)=>({n,l});
@@ -2930,13 +2931,13 @@ const GH3D=(()=>{
           ranges.forEach(([ta,tb])=>{const steps=Math.max(1,Math.round((tb-ta)*profLen(prof)/1.0));for(let q=0;q<steps;q++){const t0=ta+(tb-ta)*q/steps,t1=ta+(tb-ta)*(q+1)/steps,a=alongProf(prof,t0),bq=alongProf(prof,t1),dx=bq[0]-a[0],dz=bq[1]-a[1],sl=Math.hypot(dx,dz),ang=Math.atan2(dz,dx),nx=-dz/sl,nz=dx/sl;
             const m=new THREE.Mesh(new THREE.BoxGeometry(sl*.96,.05,len),mat);m.rotation.z=ang;m.position.set(x0+(a[0]+bq[0])/2+nx*.09,(a[1]+bq[1])/2+nz*.09,-(y+len/2));m.castShadow=true;house.add(m);m.userData.info=pinfo;pick.push(m);
             const rail=new THREE.Mesh(new THREE.BoxGeometry(sl*.96,.04,.05),MAT.alu);rail.rotation.z=ang;rail.position.set(x0+(a[0]+bq[0])/2+nx*.06,(a[1]+bq[1])/2+nz*.06,-(y+len/2));house.add(rail);}});}}}}
-    /* --- compound: gravel yard, fence with a gate, road with kerbs, date palms as a windbreak on the west and north sides --- */
+    /* --- compound: gravel yard, fence with a gate, road with kerbs, and date palms on the service-building side --- */
     const groundPV=!!(pv&&pv.land&&c.pvCover>0),cx0=-20,cx1=W+11+(groundPV?Math.min(L,48)+4:0),cy0=-7,cy1=L+8;
     B(siteG,cx0,cx1,cy0,cy1,-.02,0,MAT.yard);B(siteG,hx0-1,hx1+1,-6,0,-.01,.03,MAT.conc);
     B(siteG,cx0-6,cx1+6,-14,-8,-.03,.02,MAT.road);B(siteG,cx0-6,cx1+6,-8.2,-8,-.02,.12,MAT.kerb);B(siteG,cx0-6,cx1+6,-14,-13.8,-.02,.12,MAT.kerb);B(siteG,W/2-4,W/2+4,-8.2,cy0,-.01,.02,MAT.conc);
     const fence=(x0,y0,x1,y1)=>{const n=Math.max(1,Math.round(Math.hypot(x1-x0,y1-y0)/4));for(let k=0;k<=n;k++)cyl(siteG,x0+(x1-x0)*k/n,y0+(y1-y0)*k/n,0,2.2,.04,MAT.galv,6);beam(siteG,[x0,y0,1.1],[x1,y1,1.1],.02,2.0,MAT.fence);beam(siteG,[x0,y0,2.2],[x1,y1,2.2],.05,.05,MAT.galv);};
     fence(cx0,cy0,W/2-4,cy0);fence(W/2+4,cy0,cx1,cy0);fence(cx1,cy0,cx1,cy1);fence(cx1,cy1,cx0,cy1);fence(cx0,cy1,cx0,cy0);
-    for(let y=cy0+3;y<cy1;y+=6)palm(cx0-3.5,y+(rnd()-.5)*1.5);for(let x=cx0+2;x<cx1;x+=6)palm(x+(rnd()-.5)*1.5,cy1+3.5);
+    for(let y=cy0+3;y<cy1;y+=6)palm(cx0-3.5,y+(rnd()-.5)*1.5);
     flush();
     house.rotation.y=-(c.azimuth||0)*RHOK;siteG.rotation.y=house.rotation.y;
   }
@@ -2960,7 +2961,7 @@ const GH3D=(()=>{
     for(let b=0;b<n;b++){const y=L*(b+.5)/n,x0=b*(wb+gap);B(siteG,W+1.2,W+3.6,y-1.1,y+1.1,0,.2,MAT.conc);B(siteG,W+1.3,W+3.5,y-1.0,y+1.0,.2,1.7,MAT.unit,info('Packaged air-conditioning unit',['Runs at night; the pad cools by day (SECURE clock control).','COP 3.0, supply air dried to 9 g/kg. One unit per bay, into a fabric duct.']));
       for(let g2=0;g2<2;g2++)fanUnit(siteG,W+3.58,y+(g2?.45:-.45),.95,.32,'x',MAT.dark);
       B(siteG,W+.02,W+1.3,y-.3,y+.3,hg-1.1,hg-.6,MAT.galv);
-      beam(siteG,[W+1.42,y,1.72],[W+.82,y,hg-.85],.62,.42,MAT.pipeIns);
+      supplyDuct(siteG,[[W+1.42,y,1.72],[W+1.30,y,1.95],[W+1.08,y,hg-.85],[W+.82,y,hg-.85]],.34,MAT.pipeIns);
       pipe(house,[[W,y,hg-.85],[x0+wb/2,y,hg-.85]],.28,MAT.galv);sock(x0+wb/2,hg,L);}
   }
   /* mechanical house (SECURE: vapour-compression DX, COP 3.2, dehumidifies to 70 % RH): one packaged DX unit per bay on the far side, supply duct into a fabric sock, return grille in the gable */
@@ -2968,7 +2969,7 @@ const GH3D=(()=>{
     for(let b=0;b<n;b++){const x=b*(wb+gap)+wb/2;B(siteG,x-1.4,x+1.4,L+1.2,L+3.4,0,.2,MAT.conc);B(siteG,x-1.3,x+1.3,L+1.3,L+3.3,.2,1.9,MAT.unit,info('Packaged DX unit',['Vapour-compression cooling, COP 3.2; dries the air to 70 % RH (SECURE).','Holds 28 °C by day and 20 °C at night. One unit per bay.']));
       for(let f=0;f<2;f++)fanUnit(siteG,x-.6+f*1.2,L+3.38,1.05,.38,'z',MAT.dark);
       B(house,x-.35,x+.35,L-.02,L+1.3,hg-1.1,hg-.5,MAT.galv);
-      beam(siteG,[x,L+1.42,1.92],[x,L+.72,hg-.8],.62,.45,MAT.pipeIns);
+      supplyDuct(siteG,[[x,L+1.42,1.92],[x,L+1.22,2.15],[x,L+.95,hg-.8],[x,L+.72,hg-.8]],.34,MAT.pipeIns);
       sock(x,hg,L);B(house,x-.6,x+.6,L-.06,L-.02,z0+.6,z0+1.6,MAT.dark,info('Return grille',['Air returns to the DX unit.']));}
   }
   function palm(x,y){const h=4+rnd()*2.2,m=new THREE.Mesh(new THREE.CylinderGeometry(.13,.22,h,7),MAT.trunk);m.position.set(x,h/2,-y);stash(m,siteG);
