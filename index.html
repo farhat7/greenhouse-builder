@@ -2960,16 +2960,16 @@ const GH3D=(()=>{
   function acUnits(c,d,z0){const {wb,gap,n,W,L,hg}=d;
     for(let b=0;b<n;b++){const y=L*(b+.5)/n,x0=b*(wb+gap);B(siteG,W+1.2,W+3.6,y-1.1,y+1.1,0,.2,MAT.conc);B(siteG,W+1.3,W+3.5,y-1.0,y+1.0,.2,1.7,MAT.unit,info('Packaged air-conditioning unit',['Runs at night; the pad cools by day (SECURE clock control).','COP 3.0, supply air dried to 9 g/kg. One unit per bay, into a fabric duct.']));
       for(let g2=0;g2<2;g2++)fanUnit(siteG,W+3.58,y+(g2?.45:-.45),.95,.32,'x',MAT.dark);
-      B(siteG,W+.02,W+1.3,y-.3,y+.3,hg-1.1,hg-.6,MAT.galv);
-      supplyDuct(siteG,[[W+1.42,y,1.72],[W+1.30,y,1.95],[W+1.08,y,hg-.85],[W+.82,y,hg-.85]],.34,MAT.pipeIns);
+      B(house,W-.08,W+.08,y-.3,y+.3,hg-1.1,hg-.6,MAT.dark,info('Supply opening',['A single open duct enters the greenhouse through this wall opening.']));
+      supplyDuct(siteG,[[W+1.42,y,1.72],[W+1.30,y,1.95],[W+1.08,y,hg-.85],[W+.06,y,hg-.85]],.34,MAT.pipeIns);
       pipe(house,[[W,y,hg-.85],[x0+wb/2,y,hg-.85]],.28,MAT.galv);sock(x0+wb/2,hg,L);}
   }
   /* mechanical house (SECURE: vapour-compression DX, COP 3.2, dehumidifies to 70 % RH): one packaged DX unit per bay on the far side, supply duct into a fabric sock, return grille in the gable */
   function chillers(c,d,z0){const {wb,gap,n,L,hg}=d;
     for(let b=0;b<n;b++){const x=b*(wb+gap)+wb/2;B(siteG,x-1.4,x+1.4,L+1.2,L+3.4,0,.2,MAT.conc);B(siteG,x-1.3,x+1.3,L+1.3,L+3.3,.2,1.9,MAT.unit,info('Packaged DX unit',['Vapour-compression cooling, COP 3.2; dries the air to 70 % RH (SECURE).','Holds 28 °C by day and 20 °C at night. One unit per bay.']));
       for(let f=0;f<2;f++)fanUnit(siteG,x-.6+f*1.2,L+3.38,1.05,.38,'z',MAT.dark);
-      B(house,x-.35,x+.35,L-.02,L+1.3,hg-1.1,hg-.5,MAT.galv);
-      supplyDuct(siteG,[[x,L+1.42,1.92],[x,L+1.22,2.15],[x,L+.95,hg-.8],[x,L+.72,hg-.8]],.34,MAT.pipeIns);
+      B(house,x-.35,x+.35,L-.08,L+.08,hg-1.1,hg-.5,MAT.dark,info('Supply opening',['A single open duct enters the greenhouse through this wall opening.']));
+      supplyDuct(siteG,[[x,L+1.42,1.92],[x,L+1.22,2.15],[x,L+.95,hg-.8],[x,L+.06,hg-.8]],.34,MAT.pipeIns);
       sock(x,hg,L);B(house,x-.6,x+.6,L-.06,L-.02,z0+.6,z0+1.6,MAT.dark,info('Return grille',['Air returns to the DX unit.']));}
   }
   function palm(x,y){const h=4+rnd()*2.2,m=new THREE.Mesh(new THREE.CylinderGeometry(.13,.22,h,7),MAT.trunk);m.position.set(x,h/2,-y);stash(m,siteG);
